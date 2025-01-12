@@ -7,6 +7,7 @@ const classRouter = require('./routes/class')
 require('dotenv').config() // .env faylini o'qish
 
 const cors = require('cors')
+const authMiddleware = require('./middlewares/auth')
 const app = express()
 app.use(express.json())
 
@@ -22,15 +23,17 @@ mongoose
   })
   .then(() => console.log('MongoDB ulanishi muvaffaqiyatli amalga oshirildi'))
   .catch(err => console.error('MongoDB ulanishida xatolik yuz berdi:', err))
-app.use(cors({
-  origin: '*', // Barcha domenlarga ruxsat berish
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Qaysi metodlarga ruxsat berish
-}));
+app.use(
+  cors({
+    origin: '*', // Barcha domenlarga ruxsat berish
+    methods: ['GET', 'POST', 'PUT', 'DELETE'] // Qaysi metodlarga ruxsat berish
+  })
+)
 // Fayllarni saqlash uchun `multer` konfiguratsiyasi
-app.use('/test', testRouter)
+app.use('/test', authMiddleware, testRouter)
 app.use('/teacher', userRouter)
-app.use('/exams', examRouter)
-app.use('/class', classRouter)
+app.use('/exams', authMiddleware, examRouter)
+app.use('/class', authMiddleware, classRouter)
 // Serverni ishga tushirish
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {

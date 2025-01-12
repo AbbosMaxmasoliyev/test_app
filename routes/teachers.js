@@ -143,12 +143,12 @@ router.delete('/:id', async (req, res) => {
   }
 })
 
-router.get('/my-exams', async (req, res) => {
-  let userid = req.user || '67811fe45c20084d6212a2a3'
-  try {
-    let exams = await User.findById(userid).populate('exams')
-    res.send(exams)
-  } catch (error) {}
-})
+// router.get('/my-exams', async (req, res) => {
+//   let userid = req.user || '67811fe45c20084d6212a2a3'
+//   try {
+//     let exams = await User.findById(userid).populate('exams')
+//     res.send(exams)
+//   } catch (error) {}
+// })
 
 module.exports = router
