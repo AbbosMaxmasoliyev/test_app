@@ -11,7 +11,7 @@ const SECRET_KEY = process.env.SECRET_KEY
 // 1. Signup (Ro'yxatdan o'tish)
 router.post('/signup', async (req, res) => {
   try {
-    const { first_name, last_name, username, password } = req.body
+    const { first_name, last_name, username, password, role } = req.body
 
     // Username tekshirish
     const existingUser = await User.findOne({ username })
@@ -27,7 +27,7 @@ router.post('/signup', async (req, res) => {
       first_name,
       last_name,
       username,
-      role: 'teacher',
+      role,
       password: hashedPassword
     })
 
@@ -146,7 +146,7 @@ router.delete('/:id', async (req, res) => {
 router.get('/my-exams', async (req, res) => {
   let userid = req.user || '67811fe45c20084d6212a2a3'
   try {
-    let exams = await User.findById(userid ).populate('exams')
+    let exams = await User.findById(userid).populate('exams')
     res.send(exams)
   } catch (error) {}
 })
