@@ -6,7 +6,7 @@ const { User } = require('../models/user') // User modelini import qilish
 const router = express.Router()
 
 // JWT uchun maxfiy kalit
-const SECRET_KEY = 'your_secret_key'
+const SECRET_KEY = process.env.SECRET_KEY
 
 // 1. Signup (Ro'yxatdan o'tish)
 router.post('/signup', async (req, res) => {
@@ -42,7 +42,7 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body
-
+    console.log(username, password)
     // Foydalanuvchini topish
     const teacher = await User.findOne({ username, role: 'teacher' })
     if (!teacher) {
@@ -66,6 +66,7 @@ router.post('/login', async (req, res) => {
 
     res.status(200).json({ message: 'Login successful', token })
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: 'Error logging in', error })
   }
 })
@@ -145,7 +146,7 @@ router.delete('/:id', async (req, res) => {
 router.get('/my-exams', async (req, res) => {
   let userid = req.user || '67811fe45c20084d6212a2a3'
   try {
-    let exams = await User.findById(userid, ).populate('exams')
+    let exams = await User.findById(userid ).populate('exams')
     res.send(exams)
   } catch (error) {}
 })

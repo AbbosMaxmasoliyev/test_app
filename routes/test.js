@@ -26,11 +26,19 @@ const storage = multer.diskStorage({
 })
 
 const upload = multer({ storage: storage })
-
+router.get('/all', async (req, res) => {
+  let userId = req.user||"6783b622d67d40968f331f57"
+  try {
+    let tests = await Test.find({ status: true, who:userId }, { encodedData: 0 })
+    res.status(200).send(tests)
+  } catch (error) {
+    res.status(500).json({ error: 'Testlarni olishda xatolik' })
+  }
+})
 // Fayl yuklash uchun endpoint
-router.post('/upload', upload.single('file'), async (req, res) => {
+router.post('/create', upload.single('file'), async (req, res) => {
   const { title } = req.body // req.body dan mavzuni olish
-  let userId
+  let userId  = req.user||"6783b622d67d40968f331f57"
   if (!req.file || !title) {
     return res.status(400).json({ error: 'Fayl yoki mavzu kiritilmadi' })
   }
@@ -47,6 +55,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     const newTest = new Test({
       title, // decode qilib saqlanadi
       questions,
+      who:userId,
       encodedData: encodedData.replace('==', '') // base64 kodlangan holda saqlanadi
     })
 
@@ -67,56 +76,23 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const test = await Test.findById(req.params.id)
+    const test = await Test.findOne({ _id: req.params.id, status: true })
+    console.log(test)
     if (!test) {
       res.status(404).json({ message: 'Test topilmadi', success: false })
     }
-    res.json({ test: decodeMsgpackBase64(test.encodedData), success: true })
+    res.json({ test: decodeMsgpackBase64(test.encodedData), success: true, title:test.title })
   } catch (error) {
     res.status(500).json({ message: "Xato so'rov", success: false })
   }
 })
-router.post('/check/:id', async (req, res) => {
-  let { response_result } = req.body
-  let id = req.params.id
-  let userid = req.user || '67811fe45c20084d6212a2a3'
+
+
+router.delete('/:id', async (req, res) => {
   try {
-    let testBase = await Test.findById(id)
-
-    // Testni dekodlash
-    let testDecode = decodeMsgpackBase64(testBase.encodedData)
-    // Savollarni tekshirish va natijani olish
-    let result = validateQuestions(response_result, testDecode)
-
-    // Foydalanuvchini olish
-    let user = await User.findById(userid)
-
-    // Agar grades maydoni mavjud bo'lmasa, uni bo'sh massivga o'rnatish
-    if (!user.grades) {
-      user.grades = []
-    }
-
-    // Natijani foydalanuvchining grades arrayiga qo'shish
-    user.grades.push({
-      grade: calculatePercentage(result.grade, result.total), // 'garde' o'rniga 'grade' deb yozildi
-      date: new Date().getTime(),
-      examTitle: testBase.title,
-      exam: testBase.encodedData
+    let deleteTest = await Test.findByIdAndUpdate(req.params.id, {
+      status: false
     })
-
-    // Foydalanuvchini yangilash
-    await user.save()
-
-    console.log(result)
-
-    // Javob yuborish
-    res.status(200).send({ msg: 'success', result })
-  } catch (error) {
-    console.log(error)
-
-    // Xatolikni qaytarish
-    res.status(400).send({ msg: 'error' })
-  }
+  } catch (error) {}
 })
-
 module.exports = router

@@ -8,6 +8,12 @@ const classSchema = new mongoose.Schema({
     type: Number,
     default: new Date().getFullYear()
   },
+  exams: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: 'Exam'
+    }
+  ],
   students: [
     {
       type: mongoose.Types.ObjectId,
