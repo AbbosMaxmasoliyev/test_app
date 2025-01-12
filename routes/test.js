@@ -27,9 +27,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage })
 router.get('/all', async (req, res) => {
-  let userId = req.user||"6783b622d67d40968f331f57"
+  let userId = req.user
   try {
-    let tests = await Test.find({ status: true, who:userId }, { encodedData: 0 })
+    let tests = await Test.find(
+      { status: true, who: userId },
+      { encodedData: 0 }
+    )
     res.status(200).send(tests)
   } catch (error) {
     res.status(500).json({ error: 'Testlarni olishda xatolik' })
@@ -38,7 +41,7 @@ router.get('/all', async (req, res) => {
 // Fayl yuklash uchun endpoint
 router.post('/create', upload.single('file'), async (req, res) => {
   const { title } = req.body // req.body dan mavzuni olish
-  let userId  = req.user||"6783b622d67d40968f331f57"
+  let userId = req.user
   if (!req.file || !title) {
     return res.status(400).json({ error: 'Fayl yoki mavzu kiritilmadi' })
   }
@@ -55,7 +58,7 @@ router.post('/create', upload.single('file'), async (req, res) => {
     const newTest = new Test({
       title, // decode qilib saqlanadi
       questions,
-      who:userId,
+      who: userId,
       encodedData: encodedData.replace('==', '') // base64 kodlangan holda saqlanadi
     })
 
@@ -81,12 +84,15 @@ router.get('/:id', async (req, res) => {
     if (!test) {
       res.status(404).json({ message: 'Test topilmadi', success: false })
     }
-    res.json({ test: decodeMsgpackBase64(test.encodedData), success: true, title:test.title })
+    res.json({
+      test: decodeMsgpackBase64(test.encodedData),
+      success: true,
+      title: test.title
+    })
   } catch (error) {
     res.status(500).json({ message: "Xato so'rov", success: false })
   }
 })
-
 
 router.delete('/:id', async (req, res) => {
   try {

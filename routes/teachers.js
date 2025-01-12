@@ -2,6 +2,7 @@ const express = require('express')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { User } = require('../models/user') // User modelini import qilish
+require('dotenv').config() // .env faylini o'qish
 
 const router = express.Router()
 

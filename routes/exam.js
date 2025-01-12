@@ -12,7 +12,7 @@ const router = express.Router()
 // CREATE: Yangi exam qo'shish
 router.post('/', async (req, res) => {
   try {
-    const user = req.user || '67811fe45c20084d6212a2a3'
+    const user = req.user 
     const { testId = '67239e65ff4a6b69f233f7b8', title, classId } = req.body
     let test = await Test.findById(testId)
     console.log(test)
@@ -41,7 +41,7 @@ router.post('/', async (req, res) => {
 
 // READ: Barcha examlarni olish
 router.get('/', async (req, res) => {
-  let user = req.user || '67811fe45c20084d6212a2a3'
+  let user = req.user 
   try {
     const exams = await Exam.find({ who: user }, { encodedData: 0 })
     res.status(200).json({ exams })
@@ -86,7 +86,7 @@ router.put('/:id', async (req, res) => {
 router.post('/check/:id', async (req, res) => {
   let { response_result, status = 'pending' } = req.body
   let id = req.params.id
-  let userId = req.user || '67811fe45c20084d6212a2a3'
+  let userId = req.user 
   try {
     let testBase = await Exam.findById(id)
 
