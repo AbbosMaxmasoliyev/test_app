@@ -61,7 +61,7 @@ router.post('/login', async (req, res) => {
       { id: teacher._id, role: teacher.role },
       SECRET_KEY,
       {
-        expiresIn: '1h'
+        expiresIn: '1d'
       }
     )
 
