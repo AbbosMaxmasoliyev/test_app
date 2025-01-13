@@ -28,16 +28,47 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 router.get('/all', async (req, res) => {
   let userId = req.user
+
+  // Pagination uchun query parametrlari
+  const page = parseInt(req.query.page) || 1 // Default: 1-sahifa
+  const limit = parseInt(req.query.limit) || 10 // Default: 10 ta yozuv
+  const skip = (page - 1) * limit
+
   try {
-    let tests = await Test.find(
+    // Testlarni olish
+    const tests = await Test.find(
       { status: true, who: userId },
-      { encodedData: 0 }
     )
-    res.status(200).send(tests)
+      .skip(skip)
+      .limit(limit)
+
+    // encodedData ni dekodlash va savollar sonini qo'shish
+    const result = tests.map(test => {
+      const questions = decodeMsgpackBase64(test.encodedData) // encodedData ni dekodlash
+      return {
+        title:test.title,
+        status:test.status,
+        date:test?.date,
+        who:test?.who, // Test ob'ektini oddiy JavaScript ob'ektga aylantirish
+        questions: Object.keys(questions).length // Savollar sonini qo'shish
+      }
+    })
+    // Umumiy yozuvlar sonini olish
+    const total = await Test.countDocuments({ status: true, who: userId })
+
+    res.status(200).json({
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      data: result
+    })
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: 'Testlarni olishda xatolik' })
   }
 })
+
 // Fayl yuklash uchun endpoint
 router.post('/create', upload.single('file'), async (req, res) => {
   const { title } = req.body // req.body dan mavzuni olish

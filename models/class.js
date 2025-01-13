@@ -20,6 +20,9 @@ const classSchema = new mongoose.Schema({
       ref: 'User'
     }
   ]
+},{
+  timestamps:true,
+  timeseries:true
 })
 
 // Create the User model

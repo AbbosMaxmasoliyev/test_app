@@ -12,7 +12,7 @@ const router = express.Router()
 // CREATE: Yangi exam qo'shish
 router.post('/', async (req, res) => {
   try {
-    const user = req.user 
+    const user = req.user
     const { testId = '67239e65ff4a6b69f233f7b8', title, classId } = req.body
     let test = await Test.findById(testId)
     console.log(test)
@@ -41,12 +41,36 @@ router.post('/', async (req, res) => {
 
 // READ: Barcha examlarni olish
 router.get('/', async (req, res) => {
-  let user = req.user 
+  let user = req.user
+
+  // Pagination uchun query parametrlari
+  const page = parseInt(req.query.page) || 1 // Default: 1-sahifa
+  const limit = parseInt(req.query.limit) || 10 // Default: 10 ta yozuv
+  const skip = (page - 1) * limit
+
   try {
-    const exams = await Exam.find({ who: user }, { encodedData: 0 })
-    res.status(200).json({ exams })
+    // Examlarni olish
+    const exams = await Exam.find(
+      { who: user }, // Foydalanuvchiga tegishli examlar
+      { encodedData: 0 } // encodedData maydonini chiqarib tashlash
+    )
+      .skip(skip) // Sahifani o'tkazib yuborish
+      .limit(limit) // Cheklangan miqdordagi yozuvlarni olish
+
+    // Umumiy examlar sonini olish
+    const total = await Exam.countDocuments({ who: user })
+
+    res.status(200).json({
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      data: exams
+    })
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res
+      .status(500)
+      .json({ message: 'Examlarni olishda xatolik', error: error.message })
   }
 })
 
@@ -86,7 +110,7 @@ router.put('/:id', async (req, res) => {
 router.post('/check/:id', async (req, res) => {
   let { response_result, status = 'pending' } = req.body
   let id = req.params.id
-  let userId = req.user 
+  let userId = req.user
   try {
     let testBase = await Exam.findById(id)
 
@@ -128,10 +152,18 @@ router.get('/students/:examId', async (req, res) => {
   try {
     // const exam = await Exam.findById(req.params.examId)
     const result = await User.aggregate([
-      { $match: { 'grades.exam':new mongoose.Types.ObjectId(req.params.examId) } },
+      {
+        $match: {
+          'grades.exam': new mongoose.Types.ObjectId(req.params.examId)
+        }
+      },
       { $project: { 'grades.exam_response': 0 } },
       { $unwind: '$grades' },
-      { $match: { 'grades.exam': new mongoose.Types.ObjectId(req.params.examId) } }
+      {
+        $match: {
+          'grades.exam': new mongoose.Types.ObjectId(req.params.examId)
+        }
+      }
     ])
     res.status(200).send(result)
   } catch (error) {
