@@ -44,6 +44,7 @@ router.get('/all', async (req, res) => {
     const result = tests.map(test => {
       const questions = decodeMsgpackBase64(test.encodedData) // encodedData ni dekodlash
       return {
+        _id: test_id,
         title: test.title,
         status: test.status,
         date: test?.createdAt,
