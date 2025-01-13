@@ -69,7 +69,7 @@ router.post('/create', upload.single('file'), async (req, res) => {
     res.json({
       message: 'Test muvaffaqiyatli saqlandi',
       success: true,
-      link: `https://localhost:3000/${newTest._id}`
+      link: newTest._id
     })
   } catch (error) {
     console.error(error)
