@@ -36,9 +36,7 @@ router.get('/all', async (req, res) => {
 
   try {
     // Testlarni olish
-    const tests = await Test.find(
-      { status: true, who: userId },
-    )
+    const tests = await Test.find({ status: true, who: userId })
       .skip(skip)
       .limit(limit)
 
@@ -46,10 +44,10 @@ router.get('/all', async (req, res) => {
     const result = tests.map(test => {
       const questions = decodeMsgpackBase64(test.encodedData) // encodedData ni dekodlash
       return {
-        title:test.title,
-        status:test.status,
-        date:test?.date,
-        who:test?.who, // Test ob'ektini oddiy JavaScript ob'ektga aylantirish
+        title: test.title,
+        status: test.status,
+        date: test?.createdAt,
+        who: test?.who, // Test ob'ektini oddiy JavaScript ob'ektga aylantirish
         questions: Object.keys(questions).length // Savollar sonini qo'shish
       }
     })
