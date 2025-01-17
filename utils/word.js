@@ -25,7 +25,6 @@ function parseQuestionsAndOptions (text) {
 
       const option = {
         text: optionText,
-        isCorrect: sign === '+'
       }
 
       if (option.isCorrect) correctAnswer = optionText
@@ -43,6 +42,9 @@ function parseQuestionsAndOptions (text) {
 }
 
 function validateQuestions (response, test) {
+  if (!response || !test) {
+    return null
+  }
   let count = 0
   const result = {}
   console.log(response, '=>>>> Response')
@@ -61,8 +63,8 @@ function validateQuestions (response, test) {
   return { result, grade: count, total: keys.length }
 }
 
-function calculatePercentage(part, total) {
-  return (part / total) * 100;
+function calculatePercentage (part, total) {
+  return (part / total) * 100
 }
 
 // Savollarni parsing qilish uchun funktsiya

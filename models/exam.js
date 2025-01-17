@@ -16,6 +16,13 @@ const examSchema = new mongoose.Schema(
     class: {
       type: mongoose.Types.ObjectId,
       ref: 'Class'
+    },
+    startTime: {
+      type: Number,
+      default: new Date().getTime()
+    },
+    endTime: {
+      type: Number
     }
   },
 

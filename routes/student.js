@@ -9,53 +9,10 @@ const Class = require('../models/class')
 const { validateQuestions, calculatePercentage } = require('../utils/word')
 const router = express.Router()
 
-// CREATE: Yangi exam qo'shish
-router.post('/', async (req, res) => {
-  try {
-    const user = req.user
-    const { testId, title, classId, startTime, endTime } = req.body
-    if (startTime.length === 0 && startTime.length === 0) {
-      res.status(400).send({ message: 'Required all fields' })
-    }
-    // startTime va endTime qiymatlarini Date obyektiga o'zgartirish
-
-    let test = await Test.findById(testId)
-    if (!test) {
-      return res.status(404).send({ message: 'Test topilmadi' })
-    }
-
-    const newExam = new Exam({
-      title,
-      encodedData: test.encodedData,
-      who: user,
-      class: classId,
-      startTime,
-      endTime
-    })
-
-    const savedExam = await newExam.save()
-
-    const classBase = await Class.findById(classId)
-    if (!classBase.exams.length) {
-      classBase.exams = [newExam._id]
-    } else {
-      classBase.exams.push(newExam._id)
-    }
-    await classBase.save()
-
-    let decodedExamQuestions = decodeMsgpackBase64(savedExam.encodedData)
-
-    res
-      .status(201)
-      .send({ title: savedExam.title, questions: decodedExamQuestions })
-  } catch (error) {
-    res.status(400).json({ message: error.message })
-  }
-})
-
 // READ: Barcha examlarni olish
-router.get('/', async (req, res) => {
+router.get('/exams/all', async (req, res) => {
   let user = req.user
+  console.log(user)
 
   // Pagination uchun query parametrlari
   const page = parseInt(req.query.page) || 1 // Default: 1-sahifa
@@ -63,16 +20,27 @@ router.get('/', async (req, res) => {
   const skip = (page - 1) * limit
 
   try {
-    // Examlarni olish
+    let userBase = await User.findById(user)
+    console.log(userBase)
+
+    const now = new Date().getTime() // Hozirgi vaqtni olish
+    console.log(now)
+
     const exams = await Exam.find(
-      { who: user }, // Foydalanuvchiga tegishli examlar
+      {
+        class: userBase.class,
+        startTime: { $gt: 1736965028931 - (6000 * 2400) }
+      }, // startTime hozirgi vaqtdan katta bo'lgan examlar
       { encodedData: 0 } // encodedData maydonini chiqarib tashlash
     )
       .skip(skip) // Sahifani o'tkazib yuborish
       .limit(limit) // Cheklangan miqdordagi yozuvlarni olish
 
     // Umumiy examlar sonini olish
-    const total = await Exam.countDocuments({ who: user })
+    const total = await Exam.countDocuments({
+      class: userBase.class,
+      startTime: { $gt: now }
+    })
 
     res.status(200).json({
       total,
@@ -88,9 +56,46 @@ router.get('/', async (req, res) => {
   }
 })
 
+router.get('/grades', async (req, res) => {
+  const user = req.user
+
+  // Pagination uchun query parametrlari
+  const page = parseInt(req.query.page) || 1 // Default: 1-sahifa
+  const limit = parseInt(req.query.limit) || 10 // Default: 10 ta yozuv
+  const skip = (page - 1) * limit
+
+  try {
+    // Foydalanuvchini olish
+    const userBase = await User.findById(user)
+
+    if (!userBase) {
+      return res.status(404).json({ message: 'Foydalanuvchi topilmadi' })
+    }
+
+    // grades massivini olish va paginationni qo'llash
+    const grades = userBase.grades.slice(skip, skip + limit)
+
+    // Umumiy grades sonini olish
+    const total = userBase.grades.length
+
+    res.status(200).json({
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      data: grades
+    })
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Gradesni olishda xatolik', error: error.message })
+  }
+})
+
 // READ: Bitta examni ID orqali olish
 router.get('/:id', async (req, res) => {
   let role = req.role
+  let user = req.user
   try {
     const { id } = req.params
     const exam = await Exam.findById(id)
@@ -105,23 +110,6 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-// UPDATE: Examni yangilash
-router.put('/:id', async (req, res) => {
-  try {
-    const { id } = req.params
-    const { title, encodedData, status } = req.body
-    const updatedExam = await Exam.findByIdAndUpdate(
-      id,
-      { title, encodedData, status },
-      { new: true, runValidators: true }
-    )
-    if (!updatedExam) return res.status(404).json({ message: 'Exam not found' })
-    res.status(200).json(updatedExam)
-  } catch (error) {
-    res.status(400).json({ message: error.message })
-  }
-})
-
 router.post('/check/:id', async (req, res) => {
   let { response_result, status = 'pending' } = req.body
   let id = req.params.id
@@ -130,7 +118,7 @@ router.post('/check/:id', async (req, res) => {
     let testBase = await Exam.findById(id)
 
     // Testni dekodlash
-    let testDecode = decodeMsgpackBase64(testBase?.encodedData)
+    let testDecode = decodeMsgpackBase64(testBase.encodedData)
     // Savollarni tekshirish va natijani olish
     let result = validateQuestions(response_result, testDecode)
 
@@ -144,7 +132,7 @@ router.post('/check/:id', async (req, res) => {
 
     // Natijani foydalanuvchining grades arrayiga qo'shish
     user.grades.push({
-      grade: calculatePercentage(result?.grade, result?.total), // 'garde' o'rniga 'grade' deb yozildi
+      grade: calculatePercentage(result.grade, result.total), // 'garde' o'rniga 'grade' deb yozildi
       date: new Date().getTime(),
       exam: req.params.id,
       exam_response: JSON.stringify(result),

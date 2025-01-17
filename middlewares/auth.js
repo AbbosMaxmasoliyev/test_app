@@ -22,6 +22,7 @@ const authMiddleware = (req, res, next) => {
 
     // Decoded token bilan foydalanuvchi ma'lumotlarini req object'iga qo'shish
     req.user = decoded.id
+    req.role = decoded.role
     next() // Keyingi middleware yoki marshrutga o'tish
   })
 }

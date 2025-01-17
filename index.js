@@ -4,6 +4,8 @@ const testRouter = require('./routes/test')
 const userRouter = require('./routes/teachers')
 const examRouter = require('./routes/exam')
 const classRouter = require('./routes/class')
+const authRoutes = require('./routes/auth')
+const studentRoutes = require('./routes/student')
 require('dotenv').config() // .env faylini o'qish
 
 const cors = require('cors')
@@ -34,6 +36,8 @@ app.use('/test', authMiddleware, testRouter)
 app.use('/teacher', userRouter)
 app.use('/exams', authMiddleware, examRouter)
 app.use('/class', authMiddleware, classRouter)
+app.use('/auth', authRoutes)
+app.use('/students', authMiddleware, studentRoutes)
 // Serverni ishga tushirish
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
