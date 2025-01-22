@@ -32,12 +32,12 @@ router.post('/signup', async (req, res) => {
       role,
       password: hashedPassword
     })
-    console.log(teacher)
+    // console.log(teacher)
 
     await teacher.save()
     res.status(201).json({ message: 'Teacher registered successfully' })
   } catch (error) {
-    console.log(error)
+    // console.log(error)
     res.status(500).json({ message: 'Error registering teacher', error })
   }
 })

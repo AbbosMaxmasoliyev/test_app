@@ -24,12 +24,12 @@ router.get('/exams/all', async (req, res) => {
     // console.log(userBase)
 
     const now = new Date().getTime() // Hozirgi vaqtni olish
-    // console.log(now)
-
+    console.log(now)
+// 1737552117419
     const exams = await Exam.find(
       {
         class: userBase.class,
-        startTime: { $gt: 1736965028931 - (6000 * 2400) }
+        startTime: { $gt: now }
       }, // startTime hozirgi vaqtdan katta bo'lgan examlar
       { encodedData: 0 } // encodedData maydonini chiqarib tashlash
     )

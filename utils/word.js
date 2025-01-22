@@ -24,10 +24,12 @@ function parseQuestionsAndOptions (text) {
       const optionText = optionMatch[3].trim()
 
       const option = {
-        text: optionText,
+        text: optionText
       }
 
-      if (option.isCorrect) correctAnswer = optionText
+      if (sign === '+' && !correctAnswer) {
+        correctAnswer = optionText
+      }
       options.push(option)
     }
 

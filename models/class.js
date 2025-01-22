@@ -1,29 +1,36 @@
 const mongoose = require('mongoose')
 
-const classSchema = new mongoose.Schema({
-  name: {
-    type: String
-  },
-  year: {
-    type: Number,
-    default: new Date().getFullYear()
-  },
-  exams: [
-    {
-      type: mongoose.Types.ObjectId,
-      ref: 'Exam'
+const classSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String
+    },
+    year: {
+      type: Number,
+      default: new Date().getFullYear()
+    },
+    exams: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: 'Exam'
+      }
+    ],
+    students: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: 'User'
+      }
+    ],
+    status: {
+      type: Boolean,
+      default: true
     }
-  ],
-  students: [
-    {
-      type: mongoose.Types.ObjectId,
-      ref: 'User'
-    }
-  ]
-},{
-  timestamps:true,
-  timeseries:true
-})
+  },
+  {
+    timestamps: true,
+    timeseries: true
+  }
+)
 
 // Create the User model
 const Class = mongoose.model('Class', classSchema) // Corrected model creation

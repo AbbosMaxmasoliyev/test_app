@@ -45,9 +45,11 @@ router.post('/', async (req, res) => {
 
     let decodedExamQuestions = decodeMsgpackBase64(savedExam.encodedData)
 
-    res
-      .status(201)
-      .send({ title: savedExam.title, questions: decodedExamQuestions })
+    res.status(201).send({
+      title: savedExam.title,
+      id: savedExam._id,
+      questions: decodedExamQuestions
+    })
   } catch (error) {
     res.status(400).json({ message: error.message })
   }
@@ -133,17 +135,19 @@ router.post('/check/:id', async (req, res) => {
     let testDecode = decodeMsgpackBase64(testBase?.encodedData)
     // Savollarni tekshirish va natijani olish
     let result = validateQuestions(response_result, testDecode)
-
+    if (!result) {
+      return res.status(400).send({ msg: 'Invalid response' })
+    }
     // Foydalanuvchini olish
     let user = await User.findById(userId)
 
     // Agar grades maydoni mavjud bo'lmasa, uni bo'sh massivga o'rnatish
-    if (!user?.grades?.length) {
+    if (!user?.grades?.length || !user?.grades) {
       user.grades = []
     }
 
     // Natijani foydalanuvchining grades arrayiga qo'shish
-    user.grades.push({
+    user?.grades?.push({
       grade: calculatePercentage(result?.grade, result?.total), // 'garde' o'rniga 'grade' deb yozildi
       date: new Date().getTime(),
       exam: req.params.id,
@@ -184,7 +188,6 @@ router.get('/students/:examId', async (req, res) => {
   } catch (error) {
     // console.log(error)
     res.status(500).json({ message: error.message })
-
   }
 })
 router.get('/result/:examId/:studentId', async (req, res) => {
@@ -202,10 +205,14 @@ router.get('/result/:examId/:studentId', async (req, res) => {
         'grades.$': 1 // Faqat mos keluvchi `grades` elementini qaytaradi
       }
     )
-    res.status(200).send(result)
+    res.status(200).send({
+      first_name: result.first_name,
+      last_name: result.last_name,
+      grade: result.grades[0].grade,
+      result: JSON.parse(result.grades[0].exam_response)?.result
+    })
   } catch (error) {
     res.status(500).json({ message: error.message })
-
   }
 })
 // DELETE: Examni o'chirish

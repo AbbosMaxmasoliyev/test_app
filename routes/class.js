@@ -27,7 +27,7 @@ router.post('/', async (req, res) => {
 // 2. Read All (Barcha sinflarni olish)
 router.get('/', async (req, res) => {
   try {
-    const classes = await Class.find().populate(
+    const classes = await Class.find({ status: true }).populate(
       'students',
       'first_name last_name username'
     )
@@ -62,9 +62,13 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params
     const updates = req.body
 
-    const updatedClass = await Class.findByIdAndUpdate(id, updates, {
-      new: true
-    }).populate('students', 'first_name last_name username')
+    const updatedClass = await Class.findByIdAndUpdate(
+      { _id: id, status: true },
+      updates,
+      {
+        new: true
+      }
+    ).populate('students', 'first_name last_name username')
 
     if (!updatedClass) {
       return res.status(404).json({ message: 'Class not found' })
@@ -83,7 +87,10 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params
 
-    const deletedClass = await Class.findByIdAndDelete(id)
+    const deletedClass = await Class.findOneAndUpdate(
+      { _id: id, status: true },
+      { status: false }
+    )
 
     if (!deletedClass) {
       return res.status(404).json({ message: 'Class not found' })
