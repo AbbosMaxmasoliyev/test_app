@@ -82,4 +82,15 @@ router.get('/profile', authMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Error fetching user profile', error })
   }
 })
+router.get('/users', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.find({ status: true }, { password: 0 })
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+    res.status(200).json({ user })
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching user profile', error })
+  }
+})
 module.exports = router
