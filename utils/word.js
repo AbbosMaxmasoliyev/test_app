@@ -47,11 +47,11 @@ function validateQuestions (response, test) {
   }
   let count = 0
   const result = {}
-  console.log(response, '=>>>> Response')
+  // console.log(response, '=>>>> Response')
   let keys = Object.keys(test)
   keys.forEach(value => {
     // result[value] obyektini yaratish
-    console.log(test[value], '=>>>> Salom')
+    // console.log(test[value], '=>>>> Salom')
     let checked = response[value]?.option === test[value].correctAnswer
     checked ? count++ : false
     result[value] = {

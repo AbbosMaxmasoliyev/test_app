@@ -79,10 +79,10 @@ router.post('/create', upload.single('file'), async (req, res) => {
   try {
     const questions = await parseWordFile(req.file.path)
 
-    console.log('Process started')
+    // console.log('Process started')
     const encodedData = encodeMsgpackBase64(questions)
 
-    console.log('Process ended')
+    // console.log('Process ended')
 
     // Testni bazaga saqlash
     const newTest = new Test({
@@ -110,7 +110,6 @@ router.post('/create', upload.single('file'), async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const test = await Test.findOne({ _id: req.params.id, status: true })
-    console.log(test)
     if (!test) {
       res.status(404).json({ message: 'Test topilmadi', success: false })
     }

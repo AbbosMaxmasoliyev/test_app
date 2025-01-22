@@ -157,7 +157,7 @@ router.post('/check/:id', async (req, res) => {
     // Javob yuborish
     res.status(200).send({ msg: 'success', result })
   } catch (error) {
-    console.log(error)
+    // console.log(error)
 
     // Xatolikni qaytarish
     res.status(400).send({ msg: 'error' })
@@ -182,7 +182,9 @@ router.get('/students/:examId', async (req, res) => {
     ])
     res.status(200).send(result)
   } catch (error) {
-    console.log(error)
+    // console.log(error)
+    res.status(500).json({ message: error.message })
+
   }
 })
 router.get('/result/:examId/:studentId', async (req, res) => {
@@ -201,7 +203,10 @@ router.get('/result/:examId/:studentId', async (req, res) => {
       }
     )
     res.status(200).send(result)
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+
+  }
 })
 // DELETE: Examni o'chirish
 router.delete('/:id', async (req, res) => {

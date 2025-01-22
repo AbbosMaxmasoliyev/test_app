@@ -12,7 +12,7 @@ const router = express.Router()
 // READ: Barcha examlarni olish
 router.get('/exams/all', async (req, res) => {
   let user = req.user
-  console.log(user)
+  // console.log(user)
 
   // Pagination uchun query parametrlari
   const page = parseInt(req.query.page) || 1 // Default: 1-sahifa
@@ -21,10 +21,10 @@ router.get('/exams/all', async (req, res) => {
 
   try {
     let userBase = await User.findById(user)
-    console.log(userBase)
+    // console.log(userBase)
 
     const now = new Date().getTime() // Hozirgi vaqtni olish
-    console.log(now)
+    // console.log(now)
 
     const exams = await Exam.find(
       {
@@ -145,7 +145,7 @@ router.post('/check/:id', async (req, res) => {
     // Javob yuborish
     res.status(200).send({ msg: 'success', result })
   } catch (error) {
-    console.log(error)
+    // console.log(error)
 
     // Xatolikni qaytarish
     res.status(400).send({ msg: 'error' })
@@ -170,7 +170,9 @@ router.get('/students/:examId', async (req, res) => {
     ])
     res.status(200).send(result)
   } catch (error) {
-    console.log(error)
+    // console.log(error)
+    res.status(500).json({ message: error.message })
+
   }
 })
 router.get('/result/:examId/:studentId', async (req, res) => {
@@ -189,7 +191,10 @@ router.get('/result/:examId/:studentId', async (req, res) => {
       }
     )
     res.status(200).send(result)
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+
+  }
 })
 // DELETE: Examni o'chirish
 router.delete('/:id', async (req, res) => {
