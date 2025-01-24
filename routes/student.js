@@ -21,7 +21,7 @@ router.get('/exams/all', async (req, res) => {
 
   try {
     let userBase = await User.findById(user)
-    // console.log(userBase)
+    console.log(userBase)
 
     const now = new Date().getTime() // Hozirgi vaqtni olish
     console.log(now)
@@ -29,7 +29,7 @@ router.get('/exams/all', async (req, res) => {
     const exams = await Exam.find(
       {
         class: userBase.class,
-        startTime: { $gt: now }
+        endTime: { $gt: now }
       }, // startTime hozirgi vaqtdan katta bo'lgan examlar
       { encodedData: 0 } // encodedData maydonini chiqarib tashlash
     )
@@ -39,7 +39,7 @@ router.get('/exams/all', async (req, res) => {
     // Umumiy examlar sonini olish
     const total = await Exam.countDocuments({
       class: userBase.class,
-      startTime: { $gt: now }
+      endTime: { $gt: now }
     })
 
     res.status(200).json({
@@ -50,6 +50,7 @@ router.get('/exams/all', async (req, res) => {
       data: exams
     })
   } catch (error) {
+    console.log(error)
     res
       .status(500)
       .json({ message: 'Examlarni olishda xatolik', error: error.message })
