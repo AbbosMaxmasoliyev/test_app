@@ -124,7 +124,9 @@ router.post('/:id/add-student', async (req, res) => {
 
     classData.students.push(studentId)
     await classData.save()
-
+ 
+    student.class = classData._id
+    await student.save()
     res.status(200).json({
       message: 'Student added to class successfully',
       class: classData

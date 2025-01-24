@@ -200,16 +200,16 @@ router.get('/result/:examId/:studentId', async (req, res) => {
         }
       },
       {
-        first_name: 1,
-        last_name: 1,
+        "first_name": 1,
+        "last_name": 1,
         'grades.$': 1 // Faqat mos keluvchi `grades` elementini qaytaradi
       }
     )
     res.status(200).send({
-      first_name: result.first_name,
-      last_name: result.last_name,
-      grade: result.grades[0].grade,
-      result: JSON.parse(result.grades[0].exam_response)?.result
+      first_name: result?.first_name,
+      last_name: result?.last_name,
+      grade: result?.grades[0].grade,
+      result: JSON.parse(result?.grades[0].exam_response)?.result
     })
   } catch (error) {
     res.status(500).json({ message: error.message })

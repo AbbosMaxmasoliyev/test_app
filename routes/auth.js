@@ -37,7 +37,7 @@ router.post('/signup', async (req, res) => {
     await teacher.save()
     res.status(201).json({ message: 'Teacher registered successfully' })
   } catch (error) {
-    // console.log(error)
+    console.log(error)
     res.status(500).json({ message: 'Error registering teacher', error })
   }
 })
@@ -83,12 +83,17 @@ router.get('/profile', authMiddleware, async (req, res) => {
   }
 })
 router.get('/users', authMiddleware, async (req, res) => {
+  let role = req.role
   try {
-    const user = await User.find({ status: true }, { password: 0 })
-    if (!user) {
+    if (role !== 'student') {
+      const user = await User.find({ active: true, role:"student" }, { password: 0 })
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' })
+      }
+      res.status(200).json({ user })
+    } else {
       return res.status(404).json({ message: 'User not found' })
     }
-    res.status(200).json({ user })
   } catch (error) {
     res.status(500).json({ message: 'Error fetching user profile', error })
   }

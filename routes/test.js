@@ -110,6 +110,7 @@ router.post('/create', upload.single('file'), async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const test = await Test.findOne({ _id: req.params.id, status: true })
+    console.log(test)
     if (!test) {
       res.status(404).json({ message: 'Test topilmadi', success: false })
     }
@@ -119,6 +120,7 @@ router.get('/:id', async (req, res) => {
       title: test.title
     })
   } catch (error) {
+    console.log(error)
     res.status(500).json({ message: "Xato so'rov", success: false })
   }
 })
