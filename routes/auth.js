@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { User } = require('../models/user') // User modelini import qilish
 const authMiddleware = require('../middlewares/auth')
+const { default: mongoose } = require('mongoose')
 require('dotenv').config() // .env faylini o'qish
 
 const router = express.Router()
@@ -72,13 +73,36 @@ router.post('/login', async (req, res) => {
 })
 
 router.get('/profile', authMiddleware, async (req, res) => {
+  let role = req.role
   try {
-    const user = await User.findById(req.user, { password: 0 }).populate('class')
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' })
+    let user
+    if (role === 'student') {
+      user = await User.aggregate([
+        { $match: { _id: new mongoose.Types.ObjectId(req.user) } }, // Foydalanuvchini topish
+        {
+          $project: {
+            _id: 0, // Foydalanuvchi ID-ni chiqarish shart emas
+            first_name: 1,
+            last_name: 1,
+            username: 1,
+            role: 1,
+            active: 1,
+            createdAt:1,
+            updatedAt: 1,
+            grades:1,
+            gradesIds: '$grades.exam' // grades massivining faqat exam ID-lari
+          }
+        }
+      ])
+
+      // user = await User.findById(req.user)
+    } else if (role === 'teacher') {
+      user = await User.findById(req.user, { password: 0 })
     }
-    res.status(200).json({ user })
+    return res.json({ user:user[0] })
   } catch (error) {
+    console.log(error)
+
     res.status(500).json({ message: 'Error fetching user profile', error })
   }
 })
@@ -86,7 +110,10 @@ router.get('/users', authMiddleware, async (req, res) => {
   let role = req.role
   try {
     if (role !== 'student') {
-      const user = await User.find({ active: true, role:"student" }, { password: 0 })
+      const user = await User.find(
+        { active: true, role: 'student' },
+        { password: 0 }
+      )
       if (!user) {
         return res.status(404).json({ message: 'User not found' })
       }
