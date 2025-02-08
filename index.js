@@ -4,8 +4,9 @@ const mongoose = require('mongoose')
 const mongoURL =
   process.env.NODE_ENV === 'production'
     ? process.env.MONGO_PROD_URL ||
-      'mongodb+srv://abbos:uzEgqsSDnf6rTLuq@cluster0.adosdaq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
-    : process.env.MONGO_DEV_URL || 'mongodb+srv://abbos:uzEgqsSDnf6rTLuq@cluster0.adosdaq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+      'mongodb+srv://abbos:zPS4yWZIsges947f@cluster0.adosdaq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+    : process.env.MONGO_DEV_URL ||
+      'mongodb+srv://abbos:zPS4yWZIsges947f@cluster0.adosdaq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
 
 const PORT = process.env.PORT || 3000
 
