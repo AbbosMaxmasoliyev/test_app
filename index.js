@@ -3,8 +3,9 @@ const mongoose = require('mongoose')
 
 const mongoURL =
   process.env.NODE_ENV === 'production'
-    ? process.env.MONGO_PROD_URL || 'your-production-mongo-url'
-    : process.env.MONGO_DEV_URL || 'mongodb://127.0.0.1:27017/testdb'
+    ? process.env.MONGO_PROD_URL ||
+      'mongodb+srv://abbos:uzEgqsSDnf6rTLuq@cluster0.adosdaq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+    : process.env.MONGO_DEV_URL || 'mongodb+srv://abbos:uzEgqsSDnf6rTLuq@cluster0.adosdaq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
 
 const PORT = process.env.PORT || 3000
 
