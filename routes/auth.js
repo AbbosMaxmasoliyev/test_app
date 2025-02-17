@@ -98,16 +98,18 @@ router.get('/profile', authMiddleware, async (req, res) => {
         }
       ])
       console.log(user)
-      studentClass = await Class.findOne({ _id: user[0]?.class }).populate("exams")
-      console.log(studentClass)
+      studentClass = await Class.findOne({ _id: user[0]?.class }).populate({
+        path: 'exams',
+        select: '-encodedData' // encodedData ni yashiradi
+      })
       // user = await User.findById(req.user)
     } else if (role === 'teacher') {
       user = await User.findById(req.user, { password: 0 })
     }
     return res.json({
       user: user[0],
-      aviableExamine: studentClass?.exams?.filter(exam =>{
-        if(!user[0].gradesIds.includes(exam._id)){
+      aviableExamine: studentClass?.exams?.filter(exam => {
+        if (!user[0].gradesIds.includes(exam._id)) {
           return exam
         }
       })
