@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const { User } = require('../models/user') // User modelini import qilish
 const authMiddleware = require('../middlewares/auth')
 const { default: mongoose } = require('mongoose')
+const Class = require('../models/class')
 require('dotenv').config() // .env faylini o'qish
 
 const router = express.Router()
@@ -75,6 +76,7 @@ router.post('/login', async (req, res) => {
 router.get('/profile', authMiddleware, async (req, res) => {
   let role = req.role
   try {
+    let studentClass
     let user
     if (role === 'student') {
       user = await User.aggregate([
@@ -85,21 +87,31 @@ router.get('/profile', authMiddleware, async (req, res) => {
             first_name: 1,
             last_name: 1,
             username: 1,
+            class: 1,
             role: 1,
             active: 1,
-            createdAt:1,
+            createdAt: 1,
             updatedAt: 1,
-            grades:1,
+            grades: 1,
             gradesIds: '$grades.exam' // grades massivining faqat exam ID-lari
           }
         }
       ])
-
+      console.log(user)
+      studentClass = await Class.findOne({ _id: user[0]?.class }).populate("exams")
+      console.log(studentClass)
       // user = await User.findById(req.user)
     } else if (role === 'teacher') {
       user = await User.findById(req.user, { password: 0 })
     }
-    return res.json({ user:user[0] })
+    return res.json({
+      user: user[0],
+      aviableExamine: studentClass?.exams?.filter(exam =>{
+        if(!user[0].gradesIds.includes(exam._id)){
+          return exam
+        }
+      })
+    })
   } catch (error) {
     console.log(error)
 

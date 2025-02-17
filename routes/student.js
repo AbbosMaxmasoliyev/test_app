@@ -25,7 +25,7 @@ router.get('/exams/all', async (req, res) => {
 
     const now = new Date().getTime() // Hozirgi vaqtni olish
     console.log(now)
-// 1737552117419
+    // 1737552117419
     const exams = await Exam.find(
       {
         class: userBase.class,
@@ -173,7 +173,6 @@ router.get('/students/:examId', async (req, res) => {
   } catch (error) {
     // console.log(error)
     res.status(500).json({ message: error.message })
-
   }
 })
 router.get('/result/:examId/:studentId', async (req, res) => {
@@ -194,7 +193,6 @@ router.get('/result/:examId/:studentId', async (req, res) => {
     res.status(200).send(result)
   } catch (error) {
     res.status(500).json({ message: error.message })
-
   }
 })
 // DELETE: Examni o'chirish
