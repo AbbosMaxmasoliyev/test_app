@@ -23,6 +23,10 @@ const examSchema = new mongoose.Schema(
     },
     endTime: {
       type: Number
+    },
+    type: {
+      type: String,
+      enum: ['test', 'practise', 'writing']
     }
   },
 

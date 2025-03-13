@@ -21,10 +21,10 @@ router.get('/exams/all', async (req, res) => {
 
   try {
     let userBase = await User.findById(user)
-    console.log(userBase)
+    // console.log(userBase)
 
     const now = new Date().getTime() // Hozirgi vaqtni olish
-    console.log(now)
+    // console.log(now)
     // 1737552117419
     const exams = await Exam.find(
       {

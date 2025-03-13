@@ -70,7 +70,8 @@ router.get('/all', async (req, res) => {
 
 // Fayl yuklash uchun endpoint
 router.post('/create', upload.single('file'), async (req, res) => {
-  const { title } = req.body // req.body dan mavzuni olish
+  const { title, type } = req.body // req.body dan mavzuni olish
+  // console.log(type)
   let userId = req.user
   if (!req.file || !title) {
     return res.status(400).json({ error: 'Fayl yoki mavzu kiritilmadi' })
@@ -89,6 +90,7 @@ router.post('/create', upload.single('file'), async (req, res) => {
       title, // decode qilib saqlanadi
       questions,
       who: userId,
+      type,
       encodedData: encodedData.replace('==', '') // base64 kodlangan holda saqlanadi
     })
 
@@ -110,7 +112,7 @@ router.post('/create', upload.single('file'), async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const test = await Test.findOne({ _id: req.params.id, status: true })
-    console.log(test)
+    // console.log(test)
     if (!test) {
       res.status(404).json({ message: 'Test topilmadi', success: false })
     }

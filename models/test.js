@@ -11,6 +11,10 @@ const testSchema = new mongoose.Schema(
     who: {
       type: mongoose.Types.ObjectId,
       ref: 'User'
+    },
+    type: {
+      type: String,
+      enum: ['test', 'practise', 'writing']
     }
   },
   {

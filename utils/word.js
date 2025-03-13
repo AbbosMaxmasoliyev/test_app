@@ -43,7 +43,7 @@ function parseQuestionsAndOptions (text) {
   return questions
 }
 
-function validateQuestions (response, test) {
+function validateQuestions (response, test, type) {
   if (!response || !test) {
     return null
   }
@@ -51,17 +51,19 @@ function validateQuestions (response, test) {
   const result = {}
   // console.log(response, '=>>>> Response')
   let keys = Object.keys(test)
-  keys.forEach(value => {
-    // result[value] obyektini yaratish
-    // console.log(test[value], '=>>>> Salom')
-    let checked = response[value]?.option === test[value].correctAnswer
-    checked ? count++ : false
-    result[value] = {
-      question: test[value].question,
-      option: response[value]?.option || null, // response[value] mavjudligini tekshirish
-      check: checked // Javobni tekshirish
-    }
-  })
+  if (type === 'test') {
+    keys.forEach(value => {
+      // result[value] obyektini yaratish
+      // console.log(test[value], '=>>>> Salom')
+      let checked = response[value]?.option === test[value].correctAnswer
+      checked ? count++ : false
+      result[value] = {
+        question: test[value].question,
+        option: response[value]?.option || null, // response[value] mavjudligini tekshirish
+        check: checked // Javobni tekshirish
+      }
+    })
+  }
   return { result, grade: count, total: keys.length }
 }
 

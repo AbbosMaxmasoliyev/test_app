@@ -7,6 +7,7 @@ const { decodeMsgpackBase64 } = require('../utils/coding')
 const { User } = require('../models/user')
 const Class = require('../models/class')
 const { validateQuestions, calculatePercentage } = require('../utils/word')
+const ResponseExam = require('../models/response')
 const router = express.Router()
 
 // CREATE: Yangi exam qo'shish
@@ -14,12 +15,14 @@ router.post('/', async (req, res) => {
   try {
     const user = req.user
     const { testId, title, classId, startTime, endTime } = req.body
+    // console.log(req.body)
     if (startTime.length === 0 && startTime.length === 0) {
       res.status(400).send({ message: 'Required all fields' })
     }
     // startTime va endTime qiymatlarini Date obyektiga o'zgartirish
 
     let test = await Test.findById(testId)
+    // console.log(test)
     if (!test) {
       return res.status(404).send({ message: 'Test topilmadi' })
     }
@@ -30,7 +33,8 @@ router.post('/', async (req, res) => {
       who: user,
       class: classId,
       startTime,
-      endTime
+      endTime,
+      type: test.type
     })
 
     const savedExam = await newExam.save()
@@ -70,6 +74,10 @@ router.get('/', async (req, res) => {
       { who: user }, // Foydalanuvchiga tegishli examlar
       { encodedData: 0 } // encodedData maydonini chiqarib tashlash
     )
+      .populate({
+        path: 'class',
+        select: 'name'
+      })
       .skip(skip) // Sahifani o'tkazib yuborish
       .limit(limit) // Cheklangan miqdordagi yozuvlarni olish
 
@@ -93,17 +101,32 @@ router.get('/', async (req, res) => {
 // READ: Bitta examni ID orqali olish
 router.get('/:id', async (req, res) => {
   let role = req.role
+  let user = req.user
   try {
     const { id } = req.params
     const exam = await Exam.findById(id)
+    // console.log(exam)
     if (!exam) return res.status(404).json({ message: 'Exam not found' })
     const decodedExam = decodeMsgpackBase64(`${exam.encodedData}`, role)
+    const response_exams = await ResponseExam.find({ exam: exam, who: user })
+    if (response_exams.length) {
+      return res.status(200).send({
+        title: exam.title + " Ushbu Test oldin ishlangan",
+        questions: [],
+        status: false,
+        type: exam.type
+      })
 
-    res
-      .status(200)
-      .json({ title: exam.title, questions: decodedExam, status: exam.status })
+    }
+
+    res.status(200).json({
+      title: exam.title,
+      questions: decodedExam,
+      status: exam.status,
+      type: exam.type
+    })
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).send({ message: error.message })
   }
 })
 
@@ -126,40 +149,45 @@ router.put('/:id', async (req, res) => {
 
 router.post('/check/:id', async (req, res) => {
   let { response_result, status = 'pending' } = req.body
+  console.log(response_result)
   let id = req.params.id
   let userId = req.user
   try {
     let testBase = await Exam.findById(id)
-
+    // console.log(testBase)
     // Testni dekodlash
     let testDecode = decodeMsgpackBase64(testBase?.encodedData)
     // Savollarni tekshirish va natijani olish
-    let result = validateQuestions(response_result, testDecode)
+    console.log(testDecode)
+    let result = validateQuestions(response_result, testDecode, testBase.type)
+
     if (!result) {
       return res.status(400).send({ msg: 'Invalid response' })
     }
     // Foydalanuvchini olish
     let user = await User.findById(userId)
 
-    // Agar grades maydoni mavjud bo'lmasa, uni bo'sh massivga o'rnatish
     if (!user?.grades?.length || !user?.grades) {
       user.grades = []
     }
 
-    // Natijani foydalanuvchining grades arrayiga qo'shish
-    user?.grades?.push({
-      grade: calculatePercentage(result?.grade, result?.total), // 'garde' o'rniga 'grade' deb yozildi
-      date: new Date().getTime(),
-      exam: req.params.id,
-      exam_response: JSON.stringify(result),
-      status
+    console.log(result)
+    let response = new ResponseExam({
+      exam_response: JSON.stringify(result.result),
+      who: userId,
+      class: user.class,
+      type: "test",
+      status: "pending",
+      exam: id,
+      grade: { grade: result?.grade, total: result?.total },
     })
+    response.save()
+    // Natijani foydalanuvchining grades arrayiga qo'shish
 
     // Foydalanuvchini yangilash
     await user.save()
 
-    // Javob yuborish
-    res.status(200).send({ msg: 'success', result })
+    res.status(200).send({ msg: 'success', result: response })
   } catch (error) {
     // console.log(error)
 
@@ -170,23 +198,32 @@ router.post('/check/:id', async (req, res) => {
 router.get('/students/:examId', async (req, res) => {
   try {
     // const exam = await Exam.findById(req.params.examId)
-    const result = await User.aggregate([
-      {
-        $match: {
-          'grades.exam': new mongoose.Types.ObjectId(req.params.examId)
-        }
-      },
-      { $project: { 'grades.exam_response': 0 } },
-      { $unwind: '$grades' },
-      {
-        $match: {
-          'grades.exam': new mongoose.Types.ObjectId(req.params.examId)
-        }
-      }
-    ])
+    const result = await Exam.findById(req.params.examId)
+    console.log(result)
+    const questions = decodeMsgpackBase64(result.encodedData)
+    res.status(200).send({
+      "title": result.title,
+      questions,
+      "status": result.status,
+      "type": result.type
+
+    })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
+router.get('/students/:examId/results', async (req, res) => {
+  try {
+    // const exam = await Exam.findById(req.params.examId)
+    const result = await ResponseExam.find(
+      { exam: req.params.examId },
+      { exam_response: 0 }
+    ).populate([
+      { path: "who", select: "-password" },
+      { path: "exam", select: "-encodedData" }
+    ]);
     res.status(200).send(result)
   } catch (error) {
-    // console.log(error)
     res.status(500).json({ message: error.message })
   }
 })
@@ -200,8 +237,8 @@ router.get('/result/:examId/:studentId', async (req, res) => {
         }
       },
       {
-        "first_name": 1,
-        "last_name": 1,
+        first_name: 1,
+        last_name: 1,
         'grades.$': 1 // Faqat mos keluvchi `grades` elementini qaytaradi
       }
     )

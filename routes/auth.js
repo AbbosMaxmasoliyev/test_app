@@ -5,6 +5,7 @@ const { User } = require('../models/user') // User modelini import qilish
 const authMiddleware = require('../middlewares/auth')
 const { default: mongoose } = require('mongoose')
 const Class = require('../models/class')
+const ResponseExam = require('../models/response')
 require('dotenv').config() // .env faylini o'qish
 
 const router = express.Router()
@@ -75,30 +76,14 @@ router.post('/login', async (req, res) => {
 
 router.get('/profile', authMiddleware, async (req, res) => {
   let role = req.role
+  let userId = req.user
   try {
     let studentClass
     let user
     if (role === 'student') {
-      user = await User.aggregate([
-        { $match: { _id: new mongoose.Types.ObjectId(req.user) } }, // Foydalanuvchini topish
-        {
-          $project: {
-            _id: 0, // Foydalanuvchi ID-ni chiqarish shart emas
-            first_name: 1,
-            last_name: 1,
-            username: 1,
-            class: 1,
-            role: 1,
-            active: 1,
-            createdAt: 1,
-            updatedAt: 1,
-            grades: 1,
-            gradesIds: '$grades.exam' // grades massivining faqat exam ID-lari
-          }
-        }
-      ])
-      console.log(user)
-      studentClass = await Class.findOne({ _id: user[0]?.class }).populate({
+      user = await User.findById(userId)
+      // console.log(user)
+      studentClass = await Class.findOne({ _id: user?.class }).populate({
         path: 'exams',
         select: '-encodedData' // encodedData ni yashiradi
       })
@@ -106,13 +91,10 @@ router.get('/profile', authMiddleware, async (req, res) => {
     } else if (role === 'teacher') {
       user = await User.findById(req.user, { password: 0 })
     }
+    let grades = await ResponseExam.find({ who: user }).populate({ path: "exam", select: "-encodedData" });
     return res.json({
-      user: user[0],
-      aviableExamine: studentClass?.exams?.filter(exam => {
-        if (!user[0].gradesIds.includes(exam._id)) {
-          return exam
-        }
-      })
+      user: { user, grades },
+      aviableExamine: studentClass?.exams
     })
   } catch (error) {
     console.log(error)
