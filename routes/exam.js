@@ -149,7 +149,7 @@ router.put('/:id', async (req, res) => {
 
 router.post('/check/:id', async (req, res) => {
   let { response_result, status = 'pending' } = req.body
-  console.log(response_result)
+  // console.log(response_result)
   let id = req.params.id
   let userId = req.user
   try {
@@ -158,8 +158,8 @@ router.post('/check/:id', async (req, res) => {
     // Testni dekodlash
     let testDecode = decodeMsgpackBase64(testBase?.encodedData)
     // Savollarni tekshirish va natijani olish
-    console.log(testDecode)
-    let result = validateQuestions(response_result, testDecode, testBase.type)
+    // console.log(testDecode)
+    let result = validateQuestions(response_result, testDecode, "test")
 
     if (!result) {
       return res.status(400).send({ msg: 'Invalid response' })
@@ -171,7 +171,7 @@ router.post('/check/:id', async (req, res) => {
       user.grades = []
     }
 
-    console.log(result)
+    // console.log(result)
     let response = new ResponseExam({
       exam_response: JSON.stringify(result.result),
       who: userId,
@@ -264,4 +264,15 @@ router.delete('/:id', async (req, res) => {
   }
 })
 
+router.delete('/response/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    console.log(id)
+    const deletedExam = await ResponseExam.findByIdAndDelete(id)
+    if (!deletedExam) return res.status(404).json({ message: 'Exam not found' })
+    res.status(200).json({ message: 'Exam deleted successfully' })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
 module.exports = router
