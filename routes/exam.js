@@ -227,6 +227,7 @@ router.get('/students/:examId/results', async (req, res) => {
     ]).skip(skip) // Sahifani o'tkazib yuborish
       .limit(limit);
 
+    const total = await ResponseExam.countDocuments({ exam: req.params.examId })
 
     res.status(200).send({
       total,
