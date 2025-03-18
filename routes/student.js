@@ -1,5 +1,6 @@
 // Import required modules
 const express = require('express')
+const bcrypt = require('bcrypt')
 const mongoose = require('mongoose')
 const Exam = require('../models/exam') // Exam modelini import qilish
 const Test = require('../models/test') // Exam modelini import qilish
@@ -204,6 +205,35 @@ router.delete('/:id', async (req, res) => {
     res.status(200).json({ message: 'Exam deleted successfully' })
   } catch (error) {
     res.status(500).json({ message: error.message })
+  }
+})
+
+
+router.put("/update-password", async (req, res) => {
+  const user = req.user
+  try {
+    const { password } = req.body
+
+    // Username tekshirish
+    const existingUser = await User.findById(user)
+    if (!existingUser) {
+      return res.status(400).json({ message: 'Not Found' })
+    }
+
+    // Parolni hash qilish
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    // Yangi o'qituvchi yaratish
+    const teacher = await User.findByIdAndUpdate(user, {
+      password: hashedPassword
+    })
+    // console.log(teacher)
+
+    await teacher.save()
+    res.status(201).json({ message: 'Password changed successfully' })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: 'Error registering student', error })
   }
 })
 
