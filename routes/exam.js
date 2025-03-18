@@ -213,6 +213,9 @@ router.get('/students/:examId', async (req, res) => {
   }
 })
 router.get('/students/:examId/results', async (req, res) => {
+  const page = parseInt(req.query.page) || 1 // Default: 1-sahifa
+  const limit = parseInt(req.query.limit) || 10 // Default: 10 ta yozuv
+  const skip = (page - 1) * limit
   try {
     // const exam = await Exam.findById(req.params.examId)
     const result = await ResponseExam.find(
@@ -221,8 +224,17 @@ router.get('/students/:examId/results', async (req, res) => {
     ).populate([
       { path: "who", select: "-password" },
       { path: "exam", select: "-encodedData" }
-    ]);
-    res.status(200).send(result)
+    ]).skip(skip) // Sahifani o'tkazib yuborish
+      .limit(limit);
+
+
+    res.status(200).send({
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      data: result
+    })
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
