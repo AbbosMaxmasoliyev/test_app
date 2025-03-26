@@ -153,6 +153,11 @@ router.post('/check/:id', async (req, res) => {
   let id = req.params.id
   let userId = req.user
   try {
+    let exam_response = await ResponseExam({ who: userId, status: "pending", exam: id })
+    if (exam_response) {
+      res.status(200).send({ msg: 'existing' })
+
+    }
     let testBase = await Exam.findById(id)
     // console.log(testBase)
     // Testni dekodlash
