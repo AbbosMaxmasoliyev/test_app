@@ -44,6 +44,37 @@ router.post('/signup', async (req, res) => {
     res.status(500).json({ message: 'Error registering teacher', error })
   }
 })
+router.post('/add', async (req, res) => {
+  try {
+    const { first_name, last_name, username, password, role, classId } = req.body
+
+    // Username tekshirish
+    const existingUser = await User.findOne({ username })
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username already exists' })
+    }
+
+    // Parolni hash qilish
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    // Yangi o'qituvchi yaratish
+    const teacher = new User({
+      first_name,
+      last_name,
+      username,
+      role,
+      password: hashedPassword,
+      class: classId
+    })
+    // console.log(teacher)
+
+    await teacher.save()
+    res.status(201).json({ message: 'Teacher registered successfully' })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: 'Error registering teacher', error })
+  }
+})
 
 // 2. Login
 router.post('/login', async (req, res) => {
