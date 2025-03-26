@@ -71,7 +71,7 @@ router.get('/', async (req, res) => {
   try {
     // Examlarni olish
     const exams = await Exam.find(
-      { who: user }, // Foydalanuvchiga tegishli examlar
+      { who: user, status: true }, // Foydalanuvchiga tegishli examlar
       { encodedData: 0 } // encodedData maydonini chiqarib tashlash
     )
       .populate({
@@ -82,7 +82,7 @@ router.get('/', async (req, res) => {
       .limit(limit) // Cheklangan miqdordagi yozuvlarni olish
 
     // Umumiy examlar sonini olish
-    const total = await Exam.countDocuments({ who: user })
+    const total = await Exam.countDocuments({ who: user, status: true })
 
     res.status(200).json({
       total,

@@ -26,47 +26,39 @@ const storage = multer.diskStorage({
 })
 
 const upload = multer({ storage: storage })
-router.get('/all', async (req, res) => {
-  let userId = req.user
+router.get('/all',  async (req, res) => {
+  const userId = req.user; // Middleware orqali qo‘shilgan user ID
 
-  // Pagination uchun query parametrlari
-  const page = parseInt(req.query.page) || 1 // Default: 1-sahifa
-  const limit = parseInt(req.query.limit) || 10 // Default: 10 ta yozuv
-  const skip = (page - 1) * limit
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 10;
+  const skip = (page - 1) * limit;
 
   try {
-    // Testlarni olish
-    const tests = await Test.find({ status: true, who: userId })
-      .skip(skip)
-      .limit(limit)
-
-    // encodedData ni dekodlash va savollar sonini qo'shish
-    const result = tests.map(test => {
-      const questions = decodeMsgpackBase64(test.encodedData) // encodedData ni dekodlash
-      return {
-        _id: test._id,
-        title: test.title,
-        status: test.status,
-        date: test?.createdAt,
-        who: test?.who, // Test ob'ektini oddiy JavaScript ob'ektga aylantirish
-        questions: Object.keys(questions).length // Savollar sonini qo'shish
-      }
-    })
-    // Umumiy yozuvlar sonini olish
-    const total = await Test.countDocuments({ status: true, who: userId })
+    // Testlar ro‘yxatini olish
+    const [tests, total] = await Promise.all([
+      Test.find({ status: true, who: userId })
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 }), // oxirgi qo‘shilgan testlar birinchi chiqadi
+      Test.countDocuments({ status: true, who: userId }),
+    ]);
 
     res.status(200).json({
+      success: true,
       total,
       page,
       limit,
       totalPages: Math.ceil(total / limit),
-      data: result
-    })
+      data: tests,
+    });
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Testlarni olishda xatolik' })
+    console.error('Testlarni olishda xatolik:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Testlarni olishda xatolik yuz berdi',
+    });
   }
-})
+});
 
 // Fayl yuklash uchun endpoint
 router.post('/create', upload.single('file'), async (req, res) => {
@@ -132,6 +124,6 @@ router.delete('/:id', async (req, res) => {
     let deleteTest = await Test.findByIdAndUpdate(req.params.id, {
       status: false
     })
-  } catch (error) {}
+  } catch (error) { }
 })
 module.exports = router
