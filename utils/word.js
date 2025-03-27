@@ -1,49 +1,37 @@
-const mammoth = require('mammoth')
+const xlsx = require('xlsx');
 const questionRegex = /~\s*([^\n]+)/g // Savol matnini ajratish regexi
 const optionRegex = /([+-])([A-D])\)\s*(.+)/g // Variantlarni ajratish regexi
 const { v4: uuidv4 } = require('uuid')
-
-function parseQuestionsAndOptions (text) {
+function parseQuestionsAndOptions(data) {
   const questions = {}
-  const questionMatches = [...text.matchAll(questionRegex)]
 
-  for (let i = 0; i < questionMatches.length; i++) {
-    const questionText = questionMatches[i][1].trim()
-    const questionSection = text.slice(
-      questionMatches[i].index,
-      questionMatches[i + 1]?.index
-    ) // Keyingi savol boshlangunga qadar bo'lgan qismni olamiz
-
+  data.forEach(row => {
     const options = []
     let correctAnswer = null
-    let optionMatch
 
-    // Ushbu savolga tegishli variantlarni olish
-    while ((optionMatch = optionRegex.exec(questionSection)) !== null) {
-      const sign = optionMatch[1] // `+` yoki `-` belgisini olamiz
-      const optionText = optionMatch[3].trim()
+    const optionKeys = ['A', 'B', 'C', 'D']
 
-      const option = {
-        text: optionText
+    optionKeys.forEach(key => {
+      const answerText = row[`${key}`]
+      if (answerText) {
+        const option = { text: answerText }
+        options.push(option)
+        if (row.Togri === key) {
+          correctAnswer = answerText
+        }
       }
-
-      if (sign === '+' && !correctAnswer) {
-        correctAnswer = optionText
-      }
-      options.push(option)
-    }
+    })
 
     questions[uuidv4()] = {
-      question: questionText,
+      question: row['Savol'],
       options,
       correctAnswer
     }
-  }
+  })
 
   return questions
 }
-
-function validateQuestions (response, test, type) {
+function validateQuestions(response, test, type) {
   if (!response || !test) {
     return null
   }
@@ -67,15 +55,17 @@ function validateQuestions (response, test, type) {
   return { result, grade: count, total: keys.length }
 }
 
-function calculatePercentage (part, total) {
+function calculatePercentage(part, total) {
   return (part / total) * 100
 }
 
 // Savollarni parsing qilish uchun funktsiya
-async function parseWordFile (filePath) {
-  const { value } = await mammoth.extractRawText({ path: filePath })
+async function parseWordFile(filePath) {
+  const workbook = xlsx.readFile(filePath); // Fayl nomini moslashtiring
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const data = xlsx.utils.sheet_to_json(sheet);
 
-  const questions = parseQuestionsAndOptions(value)
+  const questions = parseQuestionsAndOptions(data)
 
   return questions
 }

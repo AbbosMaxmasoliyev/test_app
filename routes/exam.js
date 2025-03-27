@@ -153,10 +153,9 @@ router.post('/check/:id', async (req, res) => {
   let id = req.params.id
   let userId = req.user
   try {
-    let exam_response = await ResponseExam({ who: userId, status: "pending", exam: id })
+    let exam_response = await ResponseExam.findOne({ who: userId, status: "pending", exam: id, })
     if (exam_response) {
-      res.status(200).send({ msg: 'existing' })
-
+      return res.status(200).send({ msg: 'existing' })
     }
     let testBase = await Exam.findById(id)
     // console.log(testBase)
@@ -165,7 +164,7 @@ router.post('/check/:id', async (req, res) => {
     // Savollarni tekshirish va natijani olish
     // console.log(testDecode)
     let result = validateQuestions(response_result, testDecode, "test")
-
+    // console.log(result)
     if (!result) {
       return res.status(400).send({ msg: 'Invalid response' })
     }
@@ -194,7 +193,7 @@ router.post('/check/:id', async (req, res) => {
 
     res.status(200).send({ msg: 'success', result: response })
   } catch (error) {
-    // console.log(error)
+    console.log(error)
 
     // Xatolikni qaytarish
     res.status(400).send({ msg: 'error' })
