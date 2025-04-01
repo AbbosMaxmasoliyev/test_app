@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const {User} = require("../models/User"); // User modelini import qilish
-
+const { User } = require("../models/user"); // User modelini import qilish
+const data = require("../csvjson.json")
 // MongoDB ulanishi
 mongoose.connect("mongodb+srv://abbos:zPS4yWZIsges947f@cluster0.adosdaq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
     useNewUrlParser: true,
@@ -12,7 +12,7 @@ mongoose.connect("mongodb+srv://abbos:zPS4yWZIsges947f@cluster0.adosdaq.mongodb.
 async function updatePasswords() {
     try {
         // Barcha studentlarni olish
-        const students = await User.find({role:"student"});
+        const students = await User.find({ role: "student" });
 
         if (students.length === 0) {
             console.log("Hech qanday student topilmadi.");
@@ -37,5 +37,37 @@ async function updatePasswords() {
     }
 }
 
+
+
+async function teacherAdd() {
+    data.forEach(async (teacheritem) => {
+        const { first_name, last_name, username, password, role } = teacheritem
+
+        // Username tekshirish
+        const existingUser = await User.findOne({ username })
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username already exists' })
+        }
+
+        // Parolni hash qilish
+        const hashedPassword = await bcrypt.hash(password, 10)
+
+        // Yangi o'qituvchi yaratish
+        const teacher = new User({
+            first_name,
+            last_name,
+            username,
+            role,
+            password: hashedPassword
+        })
+        // console.log(teacher)
+
+        await teacher.save()
+        console.log(`${teacher.first_name} ${teacher.last_name} qo'shildi`)
+
+    })
+
+}
+
 // Funksiyani ishga tushirish
-updatePasswords();
+teacherAdd();

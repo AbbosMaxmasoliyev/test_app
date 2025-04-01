@@ -80,6 +80,7 @@ router.post('/add', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body
+    console.log({ username, password })
     // Foydalanuvchini topish
     const user = await User.findOne({ username })
     if (!user) {
@@ -108,6 +109,7 @@ router.post('/login', async (req, res) => {
 router.get('/profile', authMiddleware, async (req, res) => {
   let role = req.role
   let userId = req.user
+  console.log(userId)
   try {
     let studentClass
     let user

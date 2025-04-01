@@ -196,6 +196,27 @@ router.get('/result/:examId/:studentId', async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 })
+
+router.get('/result/:examId/:studentId', async (req, res) => {
+  try {
+    const result = await User.findOne(
+      {
+        _id: req.params.studentId, // Studentni ID bo‘yicha topish
+        grades: {
+          $elemMatch: { exam: req.params.examId } // ExamId bo‘yicha filtr
+        }
+      },
+      {
+        first_name: 1,
+        last_name: 1,
+        'grades.$': 1 // Faqat mos keluvchi `grades` elementini qaytaradi
+      }
+    )
+    res.status(200).send(result)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
 // DELETE: Examni o'chirish
 router.delete('/:id', async (req, res) => {
   try {

@@ -26,7 +26,7 @@ const storage = multer.diskStorage({
 })
 
 const upload = multer({ storage: storage })
-router.get('/all',  async (req, res) => {
+router.get('/all', async (req, res) => {
   const userId = req.user; // Middleware orqali qo‘shilgan user ID
 
   const page = parseInt(req.query.page, 10) || 1;
@@ -36,7 +36,7 @@ router.get('/all',  async (req, res) => {
   try {
     // Testlar ro‘yxatini olish
     const [tests, total] = await Promise.all([
-      Test.find({ status: true, who: userId })
+      Test.find({ status: true })
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 }), // oxirgi qo‘shilgan testlar birinchi chiqadi

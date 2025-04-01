@@ -2,6 +2,7 @@ const xlsx = require('xlsx');
 const questionRegex = /~\s*([^\n]+)/g // Savol matnini ajratish regexi
 const optionRegex = /([+-])([A-D])\)\s*(.+)/g // Variantlarni ajratish regexi
 const { v4: uuidv4 } = require('uuid')
+
 function parseQuestionsAndOptions(data) {
   const questions = {}
 
@@ -31,6 +32,7 @@ function parseQuestionsAndOptions(data) {
 
   return questions
 }
+
 function validateQuestions(response, test, type) {
   if (!response || !test) {
     return null
@@ -54,6 +56,21 @@ function validateQuestions(response, test, type) {
   }
   return { result, grade: count, total: keys.length }
 }
+
+
+
+function exportArrayToExcel(data, fileName = 'export.xlsx') {
+  // 1. Massivni worksheetga aylantiramiz
+  const worksheet = xlsx.utils.json_to_sheet(data);
+
+  // 2. Workbook yaratamiz va worksheetni qo‘shamiz
+  const workbook = xlsx.utils.book_new();
+  xlsx.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+  // 3. Excel faylni yaratamiz
+  xlsx.writeFile(workbook, fileName);
+}
+
 
 function calculatePercentage(part, total) {
   return (part / total) * 100

@@ -9,7 +9,8 @@ const Class = require('../models/class')
 const { validateQuestions, calculatePercentage } = require('../utils/word')
 const ResponseExam = require('../models/response')
 const router = express.Router()
-
+const XLSX = require('xlsx');
+const { Readable } = require('stream');
 // CREATE: Yangi exam qo'shish
 router.post('/', async (req, res) => {
   try {
@@ -244,6 +245,46 @@ router.get('/students/:examId/results', async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 })
+
+router.get('/students/:examId/results-excel', async (req, res) => {
+  try {
+    const result = await ResponseExam.find(
+      { exam: req.params.examId },
+      { exam_response: 0 }
+    ).populate([
+      { path: "who", select: "-password" },
+      { path: "exam", select: "-encodedData" },
+      { path: "class", select: "name" },
+    ]);
+
+    const plainData = result.map(item => ({
+      "Ismi": item.who?.first_name + " " + item.who?.last_name,
+      "Imtihon nomi": item.exam?.title,
+      "Balli": item.grade?.grade,
+      "Foizda": ((item.grade?.grade / item.grade?.total) * 100).toFixed(1),
+      "Umumiy": item.grade?.total,
+      "Qachon ishlangan": item.createdAt,
+      "Sinfi": item?.class?.name
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(plainData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Results');
+
+    // Faylni xotirada yaratamiz
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+    // Javob headerlarini sozlash
+    res.setHeader('Content-Disposition', 'attachment; filename="results.xlsx"');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+    // Bufferni frontendga yuboramiz
+    res.send(buffer);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 router.get('/result/:examId/:studentId', async (req, res) => {
   try {
     const result = await User.findOne(
