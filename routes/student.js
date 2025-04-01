@@ -11,6 +11,49 @@ const { validateQuestions, calculatePercentage } = require('../utils/word')
 const router = express.Router()
 
 // READ: Barcha examlarni olish
+router.get('/all', async (req, res) => {
+  const user = req.user;
+
+  const page = req.query.page || 1;
+  const limit = req.query.limit || 10;
+  const sinf = req.query.class || ''; // sinf ID
+
+  const skip = (page - 1) * limit;
+
+  const query = { role: "student" };
+  if (sinf) {
+    try {
+      query.class = new mongoose.Types.ObjectId(sinf);
+    } catch (e) {
+      return res.status(400).json({ success: false, message: "Noto‘g‘ri sinf ID" });
+    }
+  }
+  try {
+
+    const exams = await User.find(
+      query,
+      { encodedData: 0 } // encodedData maydonini chiqarib tashlash
+    ).populate("class")
+      .skip(skip) // Sahifani o'tkazib yuborish
+      .limit(limit) // Cheklangan miqdordagi yozuvlarni olish
+
+    // Umumiy examlar sonini olish
+    const total = await User.countDocuments(query)
+
+    res.status(200).json({
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      data: exams
+    })
+  } catch (error) {
+    console.log(error)
+    res
+      .status(500)
+      .json({ message: 'Examlarni olishda xatolik', error: error.message })
+  }
+})
 router.get('/exams/all', async (req, res) => {
   let user = req.user
   // console.log(user)
@@ -257,5 +300,41 @@ router.put("/update-password", async (req, res) => {
     res.status(500).json({ message: 'Error registering student', error })
   }
 })
+
+router.put("/update/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const { password, classId, ...otherFields } = req.body;
+
+    // Foydalanuvchini topamiz
+    const existingUser = await User.findById(userId);
+    if (!existingUser) {
+      return res.status(404).json({ message: 'Foydalanuvchi topilmadi' });
+    }
+
+    // Yangilash uchun obyekt
+    const updateFields = { ...otherFields };
+
+    // Parol kelsa, hashlab qo‘shamiz
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateFields.password = hashedPassword;
+    }
+
+    // classId kelsa, uni ham qo‘shamiz
+    if (classId) {
+      updateFields.class = classId;
+    }
+
+    // Yangilash
+    await User.findByIdAndUpdate(userId, updateFields);
+
+    res.status(200).json({ message: 'Foydalanuvchi muvaffaqiyatli yangilandi' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Yangilashda xatolik yuz berdi', error });
+  }
+});
 
 module.exports = router
