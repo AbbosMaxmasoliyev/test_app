@@ -120,10 +120,41 @@ router.get('/:id', async (req, res) => {
 })
 
 router.delete('/:id', async (req, res) => {
+  const userId = req.user; // foydalanuvchi ID
   try {
-    let deleteTest = await Test.findByIdAndUpdate(req.params.id, {
-      status: false
-    })
-  } catch (error) { }
-})
+    // Testni bazadan topamiz
+    const test = await Test.findById(req.params.id);
+
+    if (!test) {
+      return res.status(404).json({
+        success: false,
+        message: 'Test topilmadi',
+      });
+    }
+    console.log(test.who.toString())
+    console.log(userId)
+    console.log(test.who.toString() !== userId)
+    // Faqat test egasigina o‘chira oladi
+    if (test.who.toString() !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Siz bu testni o‘chirishga ruxsatingiz yo‘q',
+      });
+    }
+
+    // O‘chirish o‘rniga status: false qilib qo‘yamiz (soft delete)
+    await Test.findByIdAndUpdate(req.params.id, { status: false });
+
+    res.status(200).json({
+      success: true,
+      message: 'Test muvaffaqiyatli o‘chirildi',
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Testni o‘chirishda xatolik yuz berdi',
+    });
+  }
+});
 module.exports = router
