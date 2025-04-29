@@ -166,7 +166,7 @@ router.post('/check/:id', async (req, res) => {
     let testDecode = decodeMsgpackBase64(testBase.encodedData)
     // Savollarni tekshirish va natijani olish
     let result = validateQuestions(response_result, testDecode)
-
+    console.log(result,"Ishladi")
     // Foydalanuvchini olish
     let user = await User.findById(userId)
 
@@ -260,6 +260,7 @@ router.get('/result/:examId/:studentId', async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 })
+
 // DELETE: Examni o'chirish
 router.delete('/:id', async (req, res) => {
   try {

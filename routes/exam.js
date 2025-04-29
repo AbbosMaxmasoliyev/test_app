@@ -149,7 +149,7 @@ router.put('/:id', async (req, res) => {
 })
 
 router.post('/check/:id', async (req, res) => {
-  let { response_result, status = 'pending' } = req.body
+  let { response_result, status = 'pending', type } = req.body
   // console.log(response_result)
   let id = req.params.id
   let userId = req.user
@@ -159,13 +159,14 @@ router.post('/check/:id', async (req, res) => {
       return res.status(200).send({ msg: 'existing' })
     }
     let testBase = await Exam.findById(id)
+    console.log(testBase)
     // console.log(testBase)
     // Testni dekodlash
     let testDecode = decodeMsgpackBase64(testBase?.encodedData)
     // Savollarni tekshirish va natijani olish
     // console.log(testDecode)
-    let result = validateQuestions(response_result, testDecode, "test")
-    // console.log(result)
+    let result = validateQuestions(response_result, testDecode, type)
+
     if (!result) {
       return res.status(400).send({ msg: 'Invalid response' })
     }
@@ -181,8 +182,8 @@ router.post('/check/:id', async (req, res) => {
       exam_response: JSON.stringify(result.result),
       who: userId,
       class: user.class,
-      type: "test",
-      status: "pending",
+      type: testBase.type,
+      status: testBase.type === "test" ? "graded" : "pending",
       exam: id,
       grade: { grade: result?.grade, total: result?.total },
     })
@@ -192,6 +193,26 @@ router.post('/check/:id', async (req, res) => {
     // Foydalanuvchini yangilash
     await user.save()
 
+    res.status(200).send({ msg: 'success', result: response })
+  } catch (error) {
+    console.log(error)
+
+    // Xatolikni qaytarish
+    res.status(400).send({ msg: 'error' })
+  }
+})
+
+router.post('/checked-practise/:id', async (req, res) => {
+  let { exam_response, status, grade } = req.body
+  let id = req.params.id
+  try {
+
+
+    let response = await ResponseExam.findByIdAndUpdate(id, {
+      exam_response: JSON.stringify(exam_response),
+      status,
+      grade,
+    })
     res.status(200).send({ msg: 'success', result: response })
   } catch (error) {
     console.log(error)
@@ -305,6 +326,19 @@ router.get('/result/:examId/:studentId', async (req, res) => {
       last_name: result?.last_name,
       grade: result?.grades[0].grade,
       result: JSON.parse(result?.grades[0].exam_response)?.result
+    })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
+
+
+router.get('/response-result/:responseId', async (req, res) => {
+  try {
+    const result = await ResponseExam.findById(req.params.responseId).populate("who").populate("exam")
+    res.status(200).send({
+      result,
+      examQuestions: decodeMsgpackBase64(result.exam.encodedData)
     })
   } catch (error) {
     res.status(500).json({ message: error.message })

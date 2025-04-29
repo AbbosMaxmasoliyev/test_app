@@ -1,100 +1,186 @@
 [
   {
-    "first_name": "Iroda",
-    "last_name": "Abduvaliyeva",
-    "username": "I.AKG2349@pdp.uz",
-    "password": "abdiri34",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "AKBAROV",
+    "last_name": "ABDULATIF",
+    "username": "A.AQN2767@pdp.uz",
+    "password": "abdakb76"
   },
   {
-    "first_name": "Dilshod",
-    "last_name": "Dehqonov",
-    "username": "D.DRA3451@pdp.uz",
-    "password": "dehdiv45",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "ATXAMOV",
+    "last_name": "JASUR",
+    "username": "A.JST4497@pdp.uz",
+    "password": "jasatu49"
   },
   {
-    "first_name": "Davron",
-    "last_name": "Madumarov",
-    "username": "D.MNR4536@pdp.uz",
-    "password": "maddaz53",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "BADALOV",
+    "last_name": "BUNYOD",
+    "username": "B.BZB4626@pdp.uz",
+    "password": "bunbae62"
   },
   {
-    "first_name": "Javlonbek",
-    "last_name": "Tojiqulov",
-    "username": "J.TEZ4624@pdp.uz",
-    "password": "tojjal62",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "BOLTABOYEV",
+    "last_name": "UMAR",
+    "username": "B.URM5340@pdp.uz",
+    "password": "umabos34"
   },
   {
-    "first_name": "Bunyodbek",
-    "last_name": "Nurmamatov",
-    "username": "B.NHR4128@pdp.uz",
-    "password": "nurbua12",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "DONOBOYEV",
+    "last_name": "SALIMJON",
+    "username": "D.SJT2874@pdp.uz",
+    "password": "saldox87"
   },
   {
-    "first_name": "Muhammad",
-    "last_name": "Yusuf",
-    "username": "M.YTZ5435@pdp.uz",
-    "password": "yusmuh43",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "EGAMOVA",
+    "last_name": "MUNIRA",
+    "username": "E.MCM3751@pdp.uz",
+    "password": "munegt75"
   },
   {
-    "first_name": "Alijonov",
-    "last_name": "A'zamjon",
-    "username": "A.AWR4564@pdp.uz",
-    "password": "azaalu56",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "G'ANIYEV",
+    "last_name": "SUNNATXO'JA",
+    "username": "G.SWS2149@pdp.uz",
+    "password": "sungae14"
   },
   {
-    "first_name": "Jahongir",
-    "last_name": "Farxodov",
-    "username": "J.FKX5635@pdp.uz",
-    "password": "farjay63",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "G'OFUROV",
+    "last_name": "RASULBEK",
+    "username": "G.RBD4604@pdp.uz",
+    "password": "rasgov60"
   },
   {
-    "first_name": "Nurmuhammad",
-    "last_name": "Ikromov",
-    "username": "N.IBS8950@pdp.uz",
-    "password": "ikrnue95",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "ISMATULLAYEV",
+    "last_name": "SARVAR",
+    "username": "I.SRT4808@pdp.uz",
+    "password": "sarise80"
   },
   {
-    "first_name": "Asilbek",
-    "last_name": "Bekmurodov",
-    "username": "A.BFI3438@pdp.uz",
-    "password": "bekasn43",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "JALOLIDDINOV",
+    "last_name": "MUHAMMADAZIZ",
+    "username": "J.MJU2841@pdp.uz",
+    "password": "muhjan84"
   },
   {
-    "first_name": "Dilmurod",
-    "last_name": "Qodirov",
-    "username": "D.QDC5764@pdp.uz",
-    "password": "qoddin76",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "KUBAYEV",
+    "last_name": "SHERBEK",
+    "username": "K.STH1111@pdp.uz",
+    "password": "shekug11"
   },
   {
-    "first_name": "Adulloh",
-    "last_name": "Abdug'afforov",
-    "username": "A.ALL3750@pdp.uz",
-    "password": "abdadj75",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "NE'MATOV",
+    "last_name": "SARDORBEK",
+    "username": "N.SJU1427@pdp.uz",
+    "password": "sarnej42"
   },
   {
-    "first_name": "Islom",
-    "last_name": "Oripov",
-    "username": "I.OIG4364@pdp.uz",
-    "password": "oriisr36",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "NO'MONJONOVA",
+    "last_name": "MUBINA",
+    "username": "N.MRB1994@pdp.uz",
+    "password": "mubnon99"
   },
   {
-    "first_name": "Musharraf",
-    "last_name": "Ibragimov",
-    "username": "M.IAI6871@pdp.uz",
-    "password": "ibrmus87",
-    "role": "teacher"
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "NODIROVA",
+    "last_name": "MADINABONU",
+    "username": "N.MCI1370@pdp.uz",
+    "password": "madnot37"
+  },
+  {
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "PULATOV",
+    "last_name": "MUHAMMADAMIN",
+    "username": "P.MUZ1470@pdp.uz",
+    "password": "muhpum47"
+  },
+  {
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "QODOROV",
+    "last_name": "DILMUROD",
+    "username": "Q.DMX2000@pdp.uz",
+    "password": "dilqot00"
+  },
+  {
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "SHUKURJONOV",
+    "last_name": "SHARIFJON",
+    "username": "S.SLG3016@pdp.uz",
+    "password": "shashz01"
+  },
+  {
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "ULJABOYEVA",
+    "last_name": "XILOLA",
+    "username": "U.XPS1554@pdp.uz",
+    "password": "xilulh55"
+  },
+  {
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "USMONOV",
+    "last_name": "ASLIDDIN",
+    "username": "U.AHA1856@pdp.uz",
+    "password": "aslusj85"
+  },
+  {
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "VALIYEV",
+    "last_name": "KAMOLIDDIN",
+    "username": "V.KBV3742@pdp.uz",
+    "password": "kamvav74"
+  },
+  {
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "YUNUSOV",
+    "last_name": "ABDURAHIMJON",
+    "username": "Y.AVU1418@pdp.uz",
+    "password": "abdyuz41"
+  },
+  {
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "ZAFARXO'JAYEV",
+    "last_name": "ABBOSXO'JA",
+    "username": "Z.APG2393@pdp.uz",
+    "password": "abbzas39"
+  },
+  {
+    "classId": "67d79c7d025e814fc2829a82",
+    "role": "student",
+    "first_name": "ABDUJAPPAROV",
+    "last_name": "MUHAMMADYUSUF",
+    "username": "A.MCQ4820@pdp.uz",
+    "password": "muhabz82"
   }
 ]

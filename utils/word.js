@@ -53,6 +53,10 @@ function validateQuestions(response, test, type) {
         check: checked // Javobni tekshirish
       }
     })
+  } else {
+    response.forEach(res => {
+      result[res.id] = { ...res, grade: null }
+    })
   }
   return { result, grade: count, total: keys.length }
 }

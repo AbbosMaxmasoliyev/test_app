@@ -40,32 +40,36 @@ async function updatePasswords() {
 
 
 async function teacherAdd() {
-    data.forEach(async (teacheritem) => {
-        const { first_name, last_name, username, password, role } = teacheritem
+    data.forEach(async (teacheritem, index) => {
+        const { first_name, last_name, username, password, role, classId } = teacheritem
 
         // Username tekshirish
-        const existingUser = await User.findOne({ username })
-        if (existingUser) {
-            return res.status(400).json({ message: 'Username already exists' })
-        }
+        // const existingUser = await User.findOneAndDelete({ username })
+        // if (existingUser) {
+        //     console.log("O'chirildi")
+        // }
 
-        // Parolni hash qilish
+        // // Parolni hash qilish
         const hashedPassword = await bcrypt.hash(password, 10)
 
-        // Yangi o'qituvchi yaratish
+        // // Yangi o'qituvchi yaratish
         const teacher = new User({
             first_name,
             last_name,
             username,
             role,
+            class: new mongoose.Types.ObjectId(classId),
             password: hashedPassword
         })
-        // console.log(teacher)
+        console.log(teacher)
 
         await teacher.save()
         console.log(`${teacher.first_name} ${teacher.last_name} qo'shildi`)
+        console.log(`${index}`)
 
     })
+
+    console.log("hamma qo'shildi")
 
 }
 
