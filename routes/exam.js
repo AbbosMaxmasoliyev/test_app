@@ -62,28 +62,38 @@ router.post('/', async (req, res) => {
 
 // READ: Barcha examlarni olish
 router.get('/', async (req, res) => {
-  let user = req.user
-
-  // Pagination uchun query parametrlari
-  const page = parseInt(req.query.page) || 1 // Default: 1-sahifa
-  const limit = parseInt(req.query.limit) || 10 // Default: 10 ta yozuv
-  const skip = (page - 1) * limit
+  let user = req.user;
+  let role = req.role;
+  console.log(role)
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
 
   try {
-    // Examlarni olish
-    const exams = await Exam.find(
-      { who: user, status: true }, // Foydalanuvchiga tegishli examlar
-      { encodedData: 0 } // encodedData maydonini chiqarib tashlash
-    )
-      .populate({
-        path: 'class',
-        select: 'name'
-      })
-      .skip(skip) // Sahifani o'tkazib yuborish
-      .limit(limit) // Cheklangan miqdordagi yozuvlarni olish
+    let query = { status: true };
 
-    // Umumiy examlar sonini olish
-    const total = await Exam.countDocuments({ who: user, status: true })
+    // Agar direktor bo'lmasa, faqat o'ziga tegishli examlarni ko'rsatamiz
+    if (role !== "director") {
+      query.who = user;
+    }
+
+    // Populatelar ro'yxati
+    const populateFields = [
+      { path: 'class', select: 'name' }
+    ];
+
+    // Direktor bo‘lsa, who ni ham populate qilamiz
+    if (role === "director") {
+      populateFields.push({ path: 'who', select: 'last_name first_name' });
+    }
+    console.log(populateFields)
+    // Examlarni olish
+    const exams = await Exam.find(query, { encodedData: 0 })
+      .populate(populateFields)
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Exam.countDocuments(query);
 
     res.status(200).json({
       total,
@@ -91,13 +101,15 @@ router.get('/', async (req, res) => {
       limit,
       totalPages: Math.ceil(total / limit),
       data: exams
-    })
+    });
+
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Examlarni olishda xatolik', error: error.message })
+    res.status(500).json({ message: 'Examlarni olishda xatolik', error: error.message });
   }
-})
+});
+
+
+
 
 // READ: Bitta examni ID orqali olish
 router.get('/:id', async (req, res) => {
